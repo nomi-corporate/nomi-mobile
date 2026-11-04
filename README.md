@@ -1,23 +1,36 @@
-# Aplicativo Nomi
+# Nomi Mobile
 
-Interface, captura de voz, confirmação de ações e consulta à rotina. O aplicativo acessa APIs; não acessa bancos diretamente.
+Base React Native + Expo SDK 58 + TypeScript, com Expo Router, navegação Início/Matérias/Perfil e tokens lilás para tema claro/escuro. A interface inicial é de estruturação; os fluxos completos do Figma serão implementados nas próximas HUs.
 
-## Stack acordada
+## Executar
 
-React Native, Expo e TypeScript, com foco inicial em Android e possibilidade de evolução para iOS.
+Use Node 24 e npm. O lockfile é versionado.
 
-A interface será organizada por funcionalidades, com componentes reutilizáveis e os tokens visuais do Nomi. Integrações com APIs, autenticação, áudio e dispositivos ficarão isoladas em adaptadores.
+```sh
+npm ci
+npm start
+```
 
-Infraestrutura AWS; autenticação Amazon Cognito; arquivos no S3. Cada serviço é implantado independentemente e controla seus próprios dados.
+Copie `.env.example` para `.env` se for integrar serviços locais. Esses valores são públicos no binário; segredos ficam nos serviços. Em aparelho físico, configure o endereço da máquina acessível na rede; `10.0.2.2` se aplica ao emulador Android.
 
-## Estado inicial
+```sh
+npm run typecheck
+npm run export:android
+npm run export:web
+npm run android
+```
 
-Este repositório contém a documentação e os checks iniciais. O código da aplicação, o provisionamento AWS e o deploy ainda não foram implementados.
+`android` exige JDK e Android SDK e gera o projeto nativo localmente. Exportar Android verifica o bundle JavaScript; não produz APK nem comprova execução em aparelho. Use uma development build compatível com SDK 58; não presumir compatibilidade com a versão instalada do Expo Go.
 
-A stack está definida; a criação do projeto Expo e dos scripts de execução, compilação e testes será a próxima etapa. A integração com RM22/Micro OS 10 ainda depende de validação técnica.
+## Estrutura
 
-## Documentação
+- `src/app`: rotas e composição de telas.
+- `src/components`: componentes reutilizáveis.
+- `src/theme`: tokens claro/escuro.
+- `src/config`: configuração pública por ambiente.
 
-- [Arquitetura](docs/architecture.md)
-- [CI/CD e proteção da master](docs/delivery.md)
-- [Como contribuir](CONTRIBUTING.md)
+APIs, Cognito, voz e armazenamento seguro serão adapters por funcionalidade. Integração Wear OS exige módulo Android e build nativo. Os aplicativos Android do celular e relógio usam `com.nomi.app`; assinatura compatível será configurada na entrega para comunicação Data Layer. Não há sessão ou dados acadêmicos simulados como persistidos.
+
+## CI
+
+GitHub Actions instala pelo lockfile, verifica TypeScript, compatibilidade de dependências Expo e exporta bundles Android e web. Build nativo, assinatura e distribuição serão adicionados na TEC-007.

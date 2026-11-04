@@ -10,15 +10,13 @@
 - Aplicar verificações também aos administradores; sem bypass, force push ou exclusão da master.
 - CODEOWNERS exige revisão quando habilitado nas regras; sozinho não restringe quem faz merge.
 
-Esta política NÃO está aplicada pelo conteúdo deste arquivo. Configurar as regras no GitHub após criar o remoto. Responsáveis definidos: gabrielwilliandev e Lucas200507. A organização ainda precisa ser criada.
+Esta política NÃO está aplicada pelo conteúdo deste arquivo. Configurar as regras no GitHub após criar o remoto. Responsáveis definidos: gabrielwilliandev e Lucas200507. Organização: nomi-corporate.
 
 A restrição de quem pode enviar alterações à branch protegida é oferecida para organizações, conforme o plano e a visibilidade. Em repositórios privados, verificar GitHub Team ou os recursos do plano disponível. Não substituir proteção por uma simples verificação de nome de usuário no workflow.
 
 ## CI/CD
 
-O workflow inicial `Repository checks` verifica somente a estrutura e espaços inválidos: ainda não há código de aplicativo. Ele NÃO comprova compilação ou testes de produto.
-
-Ao adicionar o projeto React Native com Expo, incluir instalação reproduzível pelo lockfile, verificação de tipos, testes e validação do empacotamento. Os scripts serão definidos junto com o código; ainda não há comandos de build ou teste do aplicativo neste repositório. Cada repositório terá seu pipeline independente.
+O workflow `Mobile CI` instala pelo lockfile, verifica tipos e dependências Expo e exporta bundles Android e web. Exportação não é compilação nativa nem teste em aparelho.
 
 Para CD: executar após merge aprovado em master, produzir artefato identificado pelo commit e usar ambientes separados. Autenticar na AWS com OIDC e permissões mínimas por repositório/ambiente, sem chaves AWS permanentes no GitHub. Produção e aprovação de deploy dependerão dos recursos do plano. Deploy ainda não foi configurado.
 
