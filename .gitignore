@@ -9,7 +9,9 @@ appsettings.*.Local.json
 # Build output
 node_modules/
 dist/
-.angular/
+.expo/
+web-build/
+*.tsbuildinfo
 coverage/
 bin/
 obj/

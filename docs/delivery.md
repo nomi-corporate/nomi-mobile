@@ -18,7 +18,7 @@ A restrição de quem pode enviar alterações à branch protegida é oferecida 
 
 O workflow inicial `Repository checks` verifica somente a estrutura e espaços inválidos: ainda não há código de aplicativo. Ele NÃO comprova compilação ou testes de produto.
 
-Ao adicionar o código, incluir instalação reproduzível, compilação e testes: npm ci/build/test no mobile; dotnet restore/build/test nos serviços. Cada repositório terá seu pipeline independente.
+Ao adicionar o projeto React Native com Expo, incluir instalação reproduzível pelo lockfile, verificação de tipos, testes e validação do empacotamento. Os scripts serão definidos junto com o código; ainda não há comandos de build ou teste do aplicativo neste repositório. Cada repositório terá seu pipeline independente.
 
 Para CD: executar após merge aprovado em master, produzir artefato identificado pelo commit e usar ambientes separados. Autenticar na AWS com OIDC e permissões mínimas por repositório/ambiente, sem chaves AWS permanentes no GitHub. Produção e aprovação de deploy dependerão dos recursos do plano. Deploy ainda não foi configurado.
 
