@@ -2,32 +2,32 @@
 
 ## Responsabilidade
 
-Interface, captura de voz, confirmação de ações e consulta à rotina. O aplicativo acessa APIs; não acessa bancos diretamente.
+Interface, captura de voz, confirmaÃ§Ã£o de aÃ§Ãµes e consulta Ã  rotina. O aplicativo acessa APIs; nÃ£o acessa bancos diretamente.
 
 ## Limites
 
-O aplicativo será desenvolvido em React Native com Expo e TypeScript. Android é o foco inicial; iOS poderá ser adicionado posteriormente.
+O aplicativo serÃ¡ desenvolvido em React Native com Expo e TypeScript. Android Ã© o foco inicial; iOS poderÃ¡ ser adicionado posteriormente.
 
-Organizar telas e casos de uso por funcionalidade. Aplicar SOLID nas responsabilidades e dependências, com adaptadores para APIs, autenticação, áudio, persistência local e dispositivos. Evitar regras de negócio e chamadas HTTP diretamente em componentes visuais.
+Organizar telas e casos de uso por funcionalidade. Aplicar SOLID nas responsabilidades e dependÃªncias, com adaptadores para APIs, autenticaÃ§Ã£o, Ã¡udio, persistÃªncia local e dispositivos. Evitar regras de negÃ³cio e chamadas HTTP diretamente em componentes visuais.
 
-Os microsserviços Academic, Assistant e Notifications permanecem em C#/.NET. O aplicativo se comunica por contratos de API e não acessa seus bancos de dados nem filas internas diretamente. Credenciais secretas de provedores de IA ficam no backend.
+Os microsserviÃ§os Academic, Assistant e Notifications permanecem em C#/.NET. O aplicativo se comunica por contratos de API e nÃ£o acessa seus bancos de dados nem filas internas diretamente. Credenciais secretas de provedores de IA ficam no backend.
 
-A captura por voz produz uma proposta estruturada; o usuário confirma ou corrige antes da solicitação de gravação do compromisso no Academic.
+A captura por voz produz uma proposta estruturada; o usuÃ¡rio confirma ou corrige antes da solicitaÃ§Ã£o de gravaÃ§Ã£o do compromisso no Academic.
 
 ## Dispositivos
 
-A integração RM22/Micro OS 10 será isolada do restante do aplicativo e depende de documentação e testes no aparelho. Não assumir acesso ao microfone do relógio nem instalação de um aplicativo próprio. Apple Watch é uma possibilidade futura e terá integração específica.
+A integraÃ§Ã£o RM22/Micro OS 10 serÃ¡ isolada do restante do aplicativo e depende de documentaÃ§Ã£o e testes no aparelho. NÃ£o assumir acesso ao microfone do relÃ³gio nem instalaÃ§Ã£o de um aplicativo prÃ³prio. Apple Watch Ã© uma possibilidade futura e terÃ¡ integraÃ§Ã£o especÃ­fica.
 
-## Execução e entrega
+## ExecuÃ§Ã£o e entrega
 
-O projeto Expo ainda será inicializado. Quando houver código, o CI deve instalar dependências pelo lockfile, verificar tipos, executar os testes e validar o empacotamento. Builds nativos e integração com relógios terão configuração própria; publicar na AWS o backend não instala o aplicativo no celular.
+O projeto Expo ainda serÃ¡ inicializado. Quando houver cÃ³digo, o CI deve instalar dependÃªncias pelo lockfile, verificar tipos, executar os testes e validar o empacotamento. Builds nativos e integraÃ§Ã£o com relÃ³gios terÃ£o configuraÃ§Ã£o prÃ³pria; publicar na AWS o backend nÃ£o instala o aplicativo no celular.
 
-## Decisões pendentes
+## DecisÃµes pendentes
 
-- Provedor de IA e transcrição.
-- Protocolo e suporte real do RM22/Micro OS 10; não há promessa de app instalável.
-- Serviços AWS de execução, mensageria, região e orçamento.
-- Contratos HTTP e eventos e sua estratégia de versionamento.
+- Provedor de IA e transcriÃ§Ã£o.
+- Protocolo e suporte real do RM22/Micro OS 10; nÃ£o hÃ¡ promessa de app instalÃ¡vel.
+- ServiÃ§os AWS de execuÃ§Ã£o, mensageria, regiÃ£o e orÃ§amento.
+- Contratos HTTP e eventos e sua estratÃ©gia de versionamento.
 
 ## Design
 

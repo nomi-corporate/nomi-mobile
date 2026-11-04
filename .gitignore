@@ -20,3 +20,10 @@ TestResults/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Expo and native generated projects
+.expo/
+expo-env.d.ts
+android/
+ios/
+web-build/
