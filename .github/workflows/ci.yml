@@ -3,22 +3,94 @@ on:
   pull_request:
     branches: [master]
   push:
-    branches: [master, chore/bootstrap-project]
+    branches: [master]
+  workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+defaults:
+  run:
+    shell: bash
+env:
+  CI: 'true'
+  EXPO_NO_TELEMETRY: '1'
 jobs:
+  workflow:
+    name: Workflow lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Validate GitHub Actions workflows
+        env:
+          ACTIONLINT_SHA256: 8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8
+        run: |
+          curl --fail --silent --show-error --location \
+            https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz \
+            --output "$RUNNER_TEMP/actionlint.tar.gz"
+          echo "$ACTIONLINT_SHA256  $RUNNER_TEMP/actionlint.tar.gz" | sha256sum --check
+          tar -xzf "$RUNNER_TEMP/actionlint.tar.gz" -C "$RUNNER_TEMP" actionlint
+          "$RUNNER_TEMP/actionlint" -color
   validate:
     name: Typecheck and export
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
       - run: npm run typecheck
       - run: npx expo install --check
-      - run: npm run export:android
-      - run: npm run export:web
+      - name: Run available tests
+        run: |
+          if node -e 'process.exit(require("./package.json").scripts?.test ? 0 : 1)'; then
+            npm test
+          else
+            echo 'Sem script de teste configurado. Typecheck e exportação não substituem testes funcionais.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - run: npm run export:android -- --output-dir artifacts/android
+      - run: npm run export:web -- --output-dir artifacts/web
+      - name: Record build identity
+        env:
+          NOMI_REPOSITORY: ${{ github.repository }}
+          NOMI_COMMIT: ${{ github.sha }}
+          NOMI_RUN_ID: ${{ github.run_id }}
+          NOMI_RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          mkdir -p artifacts
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          metadata = {key.removeprefix("NOMI_").lower(): value for key, value in os.environ.items() if key.startswith("NOMI_")}
+          Path("artifacts/build.json").write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
+          PY
+          printf '### nomi-mobile\nCommit: `%s`\n' "$NOMI_COMMIT" >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload Android JavaScript bundle
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: nomi-mobile-android-bundle-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            artifacts/android/
+            artifacts/build.json
+          if-no-files-found: error
+          retention-days: 7
+      - name: Upload web export
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: nomi-mobile-web-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            artifacts/web/
+            artifacts/build.json
+          if-no-files-found: error
+          retention-days: 7
+      - name: Explain artifact scope
+        run: echo 'Android é bundle JavaScript, não APK. Web é exportação estática, sem publicação automática.' >> "$GITHUB_STEP_SUMMARY"
