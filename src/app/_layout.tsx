@@ -1,24 +1,24 @@
-import { Tabs } from 'expo-router';
+import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useColorScheme } from 'react-native';
-import { palettes } from '@/theme/tokens';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { AuthProvider, useAuth } from '@/features/auth/AuthProvider';
 
 export default function RootLayout() {
+  return <SafeAreaProvider><AuthProvider><AuthNavigator /></AuthProvider></SafeAreaProvider>;
+}
+
+function AuthNavigator() {
+  const { state } = useAuth();
+  const signedIn = state.status === 'signedIn' || state.status === 'refreshing';
   const dark = useColorScheme() === 'dark';
-  const colors = palettes[dark ? 'dark' : 'light'];
-  return (
-    <>
-      <StatusBar style={dark ? 'light' : 'dark'} />
-      <Tabs screenOptions={{
-        headerStyle: { backgroundColor: colors.surface }, headerTintColor: colors.text,
-        tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border },
-        tabBarActiveTintColor: colors.accent, tabBarInactiveTintColor: colors.muted,
-        tabBarIcon: () => null, tabBarIconStyle: { display: 'none' }, tabBarLabelStyle: { fontSize: 13 },
-      }}>
-        <Tabs.Screen name="index" options={{ title: 'Início' }} />
-        <Tabs.Screen name="subjects" options={{ title: 'Matérias' }} />
-        <Tabs.Screen name="profile" options={{ title: 'Perfil' }} />
-      </Tabs>
-    </>
-  );
+  return <>
+    <StatusBar style={dark ? 'light' : 'dark'} />
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Protected guard={signedIn}><Stack.Screen name="(tabs)" /></Stack.Protected>
+      <Stack.Protected guard={!signedIn}><Stack.Screen name="sign-in" /></Stack.Protected>
+      <Stack.Screen name="auth/callback" />
+      <Stack.Screen name="auth/logout" />
+    </Stack>
+  </>;
 }

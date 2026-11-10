@@ -29,8 +29,8 @@ npm run android
 - `src/theme`: tokens claro/escuro.
 - `src/config`: configuração pública por ambiente.
 
-APIs, Cognito, voz e armazenamento seguro serão adapters por funcionalidade. Integração Wear OS exige módulo Android e build nativo. Os aplicativos Android do celular e relógio usam `com.nomi.app`; assinatura compatível será configurada na entrega para comunicação Data Layer. Não há sessão ou dados acadêmicos simulados como persistidos.
+O login Cognito usa adapters por funcionalidade para navegador, endpoints OAuth e armazenamento seguro. Consulte [autenticação](docs/authentication.md) para configuração, limites e validação no aparelho. Voz e APIs acadêmicas serão conectadas nas próximas entregas. Integração Wear OS exige módulo Android e build nativo. Os aplicativos Android do celular e relógio usam `com.nomi.app`; assinatura compatível será configurada na entrega para comunicação Data Layer. Não há dados acadêmicos simulados como persistidos.
 
 ## CI
 
-GitHub Actions instala pelo lockfile, verifica TypeScript, compatibilidade de dependências Expo e exporta bundles Android e web. Build nativo, assinatura e distribuição serão adicionados na TEC-007.
+GitHub Actions instala pelo lockfile, verifica TypeScript, executa `npm test`, confere compatibilidade de dependências Expo e exporta bundles Android e web. Build nativo, assinatura e distribuição serão adicionados na TEC-007.

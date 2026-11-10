@@ -26,7 +26,7 @@ Workflow `Mobile CI`:
 
 O check obrigatório `Typecheck and export` mantém seu nome. Recomenda-se tornar `Workflow lint` obrigatório por configuração separada.
 
-Ainda não existe script de teste. O resumo informa isso; typecheck/export não comprovam funcionamento dos fluxos. Ao adicionar uma suíte, configurar `npm test` para execução finita com `CI=true`; cobrir as HUs implementadas.
+A suíte `npm test` executa testes finitos com o test runner do Node 24 e portas injetadas para a sessão e o cliente OAuth. O workflow existente já a executa no job `Typecheck and export`. Typecheck, testes isolados e exportação não comprovam o fluxo real no dispositivo.
 
 ## Pacotes gerados
 
@@ -34,7 +34,7 @@ Artefatos separados `nomi-mobile-android-bundle-<SHA>-<tentativa>` e `nomi-mobil
 
 O Android exportado é bundle JavaScript: não é APK/AAB, não é assinado para distribuição e não instala sozinho no celular. A exportação web é estática; a pipeline não publica um site nem torna o app web a plataforma principal.
 
-EXPO_PUBLIC_* fica visível no app e nos bundles. Nesta base, não há injeção de segredos ou configuração de produção. Antes de distribuir, configurar URLs HTTPS públicas de ambiente e autenticação.
+EXPO_PUBLIC_* fica visível no app e nos bundles. Não há injeção de segredos. A integração Cognito dev está descrita em [autenticação](authentication.md); distribuição exige configurar o ambiente escolhido e validar login em aparelho. As APIs ainda precisam validar os tokens e implementar autorização.
 
 ## Próxima etapa de entrega mobile
 
