@@ -46,6 +46,10 @@ npm run android
 
 Usar build Android nativa com o esquema `nomi` registrado. Expo Go não oferece o esquema personalizado necessário. O export web continua disponível como prévia: mostra que o login é exclusivo do app nesta entrega e não persiste tokens nem oferece login web.
 
+No Windows, usar um clone em caminho curto, por exemplo `C:\nomi-mobile`: o build CMake/Ninja das dependências pode ultrapassar o limite de caminhos mesmo quando o TypeScript e os bundles passam. Configure `JAVA_HOME` e `ANDROID_HOME` para o JDK/SDK instalados. Não alterar versões do SDK/React Native para contornar esse erro de caminho.
+
+Para escolher entre celular conectado e emulador iniciado, executar `npm run android -- --device`. O celular precisa autorizar a depuração USB; o emulador precisa estar instalado e iniciado no ambiente Android. Uma build debug depende do Metro no computador; o APK debug isolado não é uma distribuição autônoma do app. Validar nos dois destinos e registrar os resultados separadamente.
+
 Os testes usam tokens sintéticos, portas substituídas e o cliente HTTP real com transporte injetado. Cobrem callback/state/PKCE, troca e renovação, resposta inválida, cancelamento, persistência, falha de rede, sessão expirada, concorrência e saída parcial. Não substituem a integração com Cognito e SecureStore em dispositivo.
 
 Validação manual pendente em aparelho/emulador Android:
