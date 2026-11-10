@@ -13,7 +13,7 @@ export class ExpoCognitoGateway implements AuthGateway {
     const redirectUri = makeRedirectUri({ native: this.config.redirectUri });
     const request = new AuthRequest({
       clientId: this.config.clientId, redirectUri, responseType: ResponseType.Code,
-      scopes: ['openid', 'email', 'profile'], usePKCE: true, codeChallengeMethod: CodeChallengeMethod.S256,
+      scopes: ['openid', 'email'], usePKCE: true, codeChallengeMethod: CodeChallengeMethod.S256,
     });
     // A new request owns a fresh state and verifier. AuthSession checks returned state.
     const response = await request.promptAsync({ authorizationEndpoint: `${this.config.domain}/oauth2/authorize` });

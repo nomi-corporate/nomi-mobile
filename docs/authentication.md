@@ -12,7 +12,9 @@ Copiar `.env.example` para `.env` e reiniciar o bundler após alterações. Os i
 | `EXPO_PUBLIC_COGNITO_USER_POOL_ID` | Identificação do ambiente e separação do armazenamento local |
 | `EXPO_PUBLIC_COGNITO_CLIENT_ID` | Cliente público específico do Mobile |
 
-No cliente do Cognito: habilitar Authorization Code, scopes `openid email profile`, callback exato `nomi://auth/callback` e saída `nomi://auth/logout`. Não habilitar implicit ou client credentials para este aplicativo. Habilitar revogação de refresh tokens no cliente. O provedor gerencia cadastro, confirmação, recuperação e eventuais desafios MFA; o app não coleta ou persiste a senha.
+No cliente do Cognito: habilitar Authorization Code, scopes `openid email`, callback exato `nomi://auth/callback` e saída `nomi://auth/logout`. Não habilitar implicit ou client credentials para este aplicativo. Habilitar revogação de refresh tokens no cliente. O provedor gerencia cadastro, confirmação, recuperação e eventuais desafios MFA; o app não coleta ou persiste a senha.
+
+O aplicativo não solicita `profile`: esses atributos não são usados nesta entrega. Na verificação pública da configuração dev, solicitar `profile` retornou `invalid_scope`; `openid email` direcionou normalmente à página de login. Isso não substitui o teste completo de autenticação em dispositivo.
 
 ## Responsabilidades
 
