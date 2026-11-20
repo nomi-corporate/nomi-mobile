@@ -10,7 +10,9 @@
       "package": "com.nomi.app"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-splash-screen",
+      "expo-status-bar"
     ],
     "web": {
       "output": "static"
