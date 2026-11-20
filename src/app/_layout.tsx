@@ -1,7 +1,7 @@
 import { Baloo2_700Bold } from '@expo-google-fonts/baloo-2';
 import { NunitoSans_400Regular, NunitoSans_700Bold } from '@expo-google-fonts/nunito-sans';
 import { useFonts } from 'expo-font';
-import { Tabs } from 'expo-router';
+import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
@@ -15,24 +15,15 @@ function AppNavigation() {
   return (
     <>
       <StatusBar style={isDark ? 'light' : 'dark'} />
-      <Tabs
+      <Stack
         screenOptions={{
-          headerStyle: { backgroundColor: colors.surface },
-          headerTintColor: colors.text,
-          headerTitleStyle: { fontFamily: fontFamilies.displayBold },
-          tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.outline },
-          tabBarActiveTintColor: colors.accent,
-          tabBarInactiveTintColor: colors.muted,
-          tabBarIcon: () => null,
-          tabBarIconStyle: { display: 'none' },
-          tabBarLabelStyle: { fontFamily: fontFamilies.sansBold, fontSize: 13 },
+          headerShown: false,
+          contentStyle: { backgroundColor: colors.bg },
         }}
       >
-        <Tabs.Screen name="index" options={{ title: 'Início' }} />
-        <Tabs.Screen name="subjects" options={{ title: 'Matérias' }} />
-        <Tabs.Screen name="profile" options={{ title: 'Perfil' }} />
-        <Tabs.Screen name="dev/components" options={{ href: null, headerShown: false }} />
-      </Tabs>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="dev/components" options={{ headerShown: false }} />
+      </Stack>
     </>
   );
 }
