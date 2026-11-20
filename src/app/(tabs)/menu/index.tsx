@@ -1,18 +1,19 @@
 import { useRouter } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Button } from '@/components/Button';
 import { Field } from '@/components/Field';
 import { NavRow } from '@/components/NavRow';
 import { ProfileSummary } from '@/components/ProfileSummary';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { SectionLabel } from '@/components/SectionLabel';
-import { SIMULATED_PROFILE } from '@/features/profile/mock';
+import { useProfile } from '@/features/profile/useProfile';
 import { useNomiTheme } from '@/theme/ThemeProvider';
 import { sizes, spacing, typography } from '@/theme/tokens';
 
 export default function ProfileMenuScreen() {
   const router = useRouter();
   const { colors } = useNomiTheme();
+  const { profile, status, isSimulated, errorMessage, lastSavedMessage, reload } = useProfile();
 
   return (
     <ScrollView
@@ -26,25 +27,66 @@ export default function ProfileMenuScreen() {
         onNotificationsPress={() => router.push('/menu/reminders')}
       />
 
-      <ProfileSummary
-        name={SIMULATED_PROFILE.displayName}
-        course={SIMULATED_PROFILE.courseLabel}
-        term={SIMULATED_PROFILE.termLabel}
-      />
+      {status === 'loading' && !profile ? (
+        <View style={styles.stateBox}>
+          <ActivityIndicator size="small" color={colors.accent} />
+          <Text style={[styles.stateText, { color: colors.muted }]}>
+            Carregando dados do perfil...
+          </Text>
+        </View>
+      ) : null}
 
-      <SectionLabel>DADOS DA CONTA</SectionLabel>
+      {status === 'error' && !profile ? (
+        <View style={styles.stateBox}>
+          <Text
+            accessibilityRole="alert"
+            style={[styles.stateText, { color: colors.accent }]}
+          >
+            {errorMessage ?? 'Não foi possível carregar os dados do perfil.'}
+          </Text>
+          <Button
+            label="Tentar novamente"
+            variant="secondary"
+            onPress={() => {
+              void reload();
+            }}
+          />
+        </View>
+      ) : null}
 
-      <Field
-        label="E-MAIL"
-        value={SIMULATED_PROFILE.email}
-        readOnly
-      />
+      {profile ? (
+        <>
+          <ProfileSummary
+            name={profile.displayName}
+            course={profile.courseLabel}
+            term={profile.termLabel}
+            avatarUrl={profile.avatarUrl}
+          />
 
-      <Button
-        label="Editar perfil"
-        variant="primary"
-        onPress={() => router.push('/menu/edit')}
-      />
+          {lastSavedMessage ? (
+            <Text
+              accessibilityLiveRegion="polite"
+              style={[styles.feedbackText, { color: colors.accent }]}
+            >
+              {lastSavedMessage}
+            </Text>
+          ) : null}
+
+          <SectionLabel>DADOS DA CONTA</SectionLabel>
+
+          <Field
+            label="E-MAIL"
+            value={profile.email}
+            readOnly
+          />
+
+          <Button
+            label="Editar perfil"
+            variant="primary"
+            onPress={() => router.push('/menu/edit')}
+          />
+        </>
+      ) : null}
 
       <SectionLabel>SUA EXPERIÊNCIA</SectionLabel>
 
@@ -84,9 +126,11 @@ export default function ProfileMenuScreen() {
             Sair da conta (depende da sessão · HU-103)
           </Text>
         </Pressable>
-        <Text style={[styles.simulationNote, { color: colors.muted }]}>
-          Dados simulados para visualização de interface.
-        </Text>
+        {isSimulated ? (
+          <Text style={[styles.simulationNote, { color: colors.muted }]}>
+            Modo simulado ativo (EXPO_PUBLIC_ACADEMIC_API_URL não configurada).
+          </Text>
+        ) : null}
       </View>
     </ScrollView>
   );
@@ -97,6 +141,16 @@ const styles = StyleSheet.create({
     padding: spacing.screenPadding,
     gap: spacing.blockGap,
     flexGrow: 1,
+  },
+  stateBox: {
+    gap: spacing.sm,
+    paddingVertical: spacing.md,
+  },
+  stateText: {
+    ...typography.caption,
+  },
+  feedbackText: {
+    ...typography.caption,
   },
   signOutWrapper: {
     gap: 4,

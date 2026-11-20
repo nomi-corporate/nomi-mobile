@@ -5,6 +5,7 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { ProfileProvider } from '@/features/profile/useProfile';
 import { ThemeProvider, useNomiTheme } from '@/theme/ThemeProvider';
 import { fontFamilies } from '@/theme/tokens';
 
@@ -47,7 +48,9 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider>
-      <AppNavigation />
+      <ProfileProvider>
+        <AppNavigation />
+      </ProfileProvider>
     </ThemeProvider>
   );
 }
