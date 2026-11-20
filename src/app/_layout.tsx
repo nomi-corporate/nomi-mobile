@@ -31,6 +31,7 @@ function AppNavigation() {
         <Tabs.Screen name="index" options={{ title: 'Início' }} />
         <Tabs.Screen name="subjects" options={{ title: 'Matérias' }} />
         <Tabs.Screen name="profile" options={{ title: 'Perfil' }} />
+        <Tabs.Screen name="dev/components" options={{ href: null, headerShown: false }} />
       </Tabs>
     </>
   );
