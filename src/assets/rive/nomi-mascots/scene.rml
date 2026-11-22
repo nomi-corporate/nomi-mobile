@@ -388,7 +388,7 @@
         <AnimationState id="0:6" animationId="0:7" x="220" y="0" />
       </StateMachineLayer>
     </StateMachine>
-    <LinearAnimation id="0:7" name="Saudando Motion" duration="192" fps="60" loopValue="loop">
+    <LinearAnimation id="0:7" name="Saudando Motion" duration="170" fps="60" loopValue="loop">
       <KeyedObject objectId="0:132">
         <KeyedProperty property="scaleX">
           <KeyFrameDouble value="1" frame="0" interpolationType="cubic" interpolatorId="0:139">
@@ -1043,7 +1043,7 @@
         <AnimationState id="0:226" animationId="0:227" x="220" y="0" />
       </StateMachineLayer>
     </StateMachine>
-    <LinearAnimation id="0:227" name="Atento Motion" duration="192" fps="60" loopValue="loop">
+    <LinearAnimation id="0:227" name="Atento Motion" duration="170" fps="60" loopValue="loop">
       <KeyedObject objectId="0:341">
         <KeyedProperty property="scaleX">
           <KeyFrameDouble value="1" frame="0" interpolationType="cubic" interpolatorId="0:348">
@@ -1631,7 +1631,7 @@
         <AnimationState id="0:414" animationId="0:415" x="220" y="0" />
       </StateMachineLayer>
     </StateMachine>
-    <LinearAnimation id="0:415" name="Pensando Motion" duration="192" fps="60" loopValue="loop">
+    <LinearAnimation id="0:415" name="Pensando Motion" duration="161" fps="60" loopValue="loop">
       <KeyedObject objectId="0:529">
         <KeyedProperty property="scaleX">
           <KeyFrameDouble value="1" frame="0" interpolationType="cubic" interpolatorId="0:536">
@@ -2263,7 +2263,7 @@
         <AnimationState id="0:613" animationId="0:614" x="220" y="0" />
       </StateMachineLayer>
     </StateMachine>
-    <LinearAnimation id="0:614" name="Comemorando Motion" duration="192" fps="60" loopValue="loop">
+    <LinearAnimation id="0:614" name="Comemorando Motion" duration="169" fps="60" loopValue="loop">
       <KeyedObject objectId="0:726">
         <KeyedProperty property="scaleX">
           <KeyFrameDouble value="1" frame="0" interpolationType="cubic" interpolatorId="0:733">
@@ -3349,7 +3349,7 @@
         <AnimationState id="0:923" animationId="0:924" x="220" y="0" />
       </StateMachineLayer>
     </StateMachine>
-    <LinearAnimation id="0:924" name="Ouvindo Motion" duration="192" fps="60" loopValue="loop">
+    <LinearAnimation id="0:924" name="Ouvindo Motion" duration="174" fps="60" loopValue="loop">
       <KeyedObject objectId="0:1063">
         <KeyedProperty property="scaleX">
           <KeyFrameDouble value="1" frame="0" interpolationType="cubic" interpolatorId="0:1070">
@@ -4349,7 +4349,7 @@
         <AnimationState id="0:1191" animationId="0:1192" x="220" y="0" />
       </StateMachineLayer>
     </StateMachine>
-    <LinearAnimation id="0:1192" name="Explicando Motion" duration="192" fps="60" loopValue="loop">
+    <LinearAnimation id="0:1192" name="Explicando Motion" duration="147" fps="60" loopValue="loop">
       <KeyedObject objectId="0:1335">
         <KeyedProperty property="opacity">
           <KeyFrameDouble value="0.66" frame="0" interpolationType="cubic" interpolatorId="0:1378">

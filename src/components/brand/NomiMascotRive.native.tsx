@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { memo, useCallback, useState } from 'react';
 import { StyleSheet, View, type ViewStyle } from 'react-native';
 import { Fit, RiveView, useRiveFile } from '@rive-app/react-native';
 import { NomiMascot, type NomiMascotPose } from './NomiMascot';
@@ -25,8 +25,9 @@ const poseArtboards: Record<MascotPose, { artboard: string; stateMachine: string
 const mascotFile = require('../../assets/rive/nomi_mascots.riv');
 
 /** Rive-powered Figma mascot, loaded lazily by NomiMascotAnimated. */
-export function NomiMascotRive({ pose, size, accessibilityLabel, style, autoPlay }: Props) {
+export const NomiMascotRive = memo(function NomiMascotRive({ pose, size, accessibilityLabel, style, autoPlay }: Props) {
   const [renderError, setRenderError] = useState(false);
+  const onError = useCallback(() => setRenderError(true), []);
   const { riveFile, error } = useRiveFile(mascotFile);
   const label = accessibilityLabel ?? `Nomi ${pose === 'greeting' ? 'saudando' : pose}`;
 
@@ -43,11 +44,11 @@ export function NomiMascotRive({ pose, size, accessibilityLabel, style, autoPlay
         stateMachineName={selected.stateMachine}
         autoPlay={autoPlay}
         fit={Fit.Contain}
-        onError={() => setRenderError(true)}
+        onError={onError}
         style={StyleSheet.absoluteFill}
       />
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({ container: { overflow: 'hidden' } });
