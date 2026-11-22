@@ -9,6 +9,8 @@ type Props = {
   onPress?: (event: GestureResponderEvent) => void;
   onLongPress?: ((event: GestureResponderEvent) => void) | null;
   accessibilityState?: { selected?: boolean };
+  /** React Navigation 7 passes the focused state here instead of accessibilityState. */
+  'aria-selected'?: boolean;
   accessibilityLabel?: string;
   testID?: string;
   href?: string;
@@ -19,10 +21,10 @@ type Props = {
  * Tab button for the bottom bar: the lilac pill fades and grows in when the tab becomes active,
  * the content lifts slightly, and a press gives a short scale feedback. Respects reduced motion.
  */
-export function NomiTabBarButton({ children, onPress, onLongPress, accessibilityState, accessibilityLabel, testID, style }: Props) {
+export function NomiTabBarButton({ children, onPress, onLongPress, accessibilityState, 'aria-selected': ariaSelected, accessibilityLabel, testID, style }: Props) {
   const { colorScheme } = useNomiTheme();
   const colors = palettes[colorScheme];
-  const selected = !!accessibilityState?.selected;
+  const selected = !!(ariaSelected ?? accessibilityState?.selected);
   const reducedMotion = useReducedMotion();
   const active = useSharedValue(selected ? 1 : 0);
   const pressed = useSharedValue(0);

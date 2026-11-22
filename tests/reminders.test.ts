@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import type { AgendaItem } from '../src/features/academic/infrastructure/AcademicClient.ts';
-import { DEFAULT_PREFERENCES, notificationId, reminderContent, reminderTrigger, type ReminderPreferences } from '../src/features/reminders/schedule.ts';
+import { DEFAULT_PREFERENCES, notificationId, reminderContent, reminderPlan, reminderTrigger, type ReminderPreferences } from '../src/features/reminders/schedule.ts';
 
 const now = new Date('2026-11-22T12:00:00.000Z');
 
@@ -79,4 +79,30 @@ test('content labels assignments and generic reminders without subject or time',
 
 test('notification identifier is derived from the commitment id', () => {
   assert.equal(notificationId('abc-123'), 'commitment-abc-123');
+});
+
+test('reminder plan schedules ahead of time and cancels completed commitments', () => {
+  assert.deepEqual(reminderPlan(item(), prefs({ leadMinutes: 30 }), now), { action: 'schedule', at: new Date('2026-11-25T13:30:00.000Z') });
+  assert.deepEqual(reminderPlan(item({ status: 'completed' }), prefs(), now), { action: 'cancel' });
+  assert.deepEqual(reminderPlan(item(), prefs({ enabled: false }), now), { action: 'cancel' });
+});
+
+test('a commitment closer than the lead time gets a catch-up reminder only when saved', () => {
+  // Due in 10 minutes with a 30-minute lead: the regular reminder time is already past.
+  const soon = item({}, { instant: '2026-11-22T12:10:00.000Z' });
+  assert.deepEqual(reminderPlan(soon, prefs({ leadMinutes: 30 }), now, { catchUp: true }), { action: 'schedule', at: new Date('2026-11-22T12:01:00.000Z') });
+  // Reconciliation must not cancel or push the catch-up reminder scheduled at save time.
+  assert.deepEqual(reminderPlan(soon, prefs({ leadMinutes: 30 }), now), { action: 'keep' });
+});
+
+test('no catch-up when the commitment starts in less than three minutes or already passed', () => {
+  assert.deepEqual(reminderPlan(item({}, { instant: '2026-11-22T12:02:00.000Z' }), prefs(), now, { catchUp: true }), { action: 'cancel' });
+  assert.deepEqual(reminderPlan(item({}, { instant: '2026-11-22T11:00:00.000Z' }), prefs(), now, { catchUp: true }), { action: 'cancel' });
+});
+
+test('date-only deadline after 09:00 on the same day gets a catch-up reminder when saved', () => {
+  const today = item({ displayTime: null }, { precision: 'date', localDate: '2026-11-22', instant: undefined, localTime: undefined, offset: undefined });
+  const afterNine = new Date('2026-11-22T15:00:00.000Z'); // 12:00 in São Paulo
+  assert.deepEqual(reminderPlan(today, prefs(), afterNine, { catchUp: true }), { action: 'schedule', at: new Date('2026-11-22T15:01:00.000Z') });
+  assert.deepEqual(reminderPlan(today, prefs(), afterNine), { action: 'keep' });
 });

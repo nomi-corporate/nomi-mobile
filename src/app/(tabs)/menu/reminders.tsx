@@ -8,9 +8,12 @@ import { NomiButton, NomiFeedback, NomiOptionCard, NomiScreenHeader, NomiText } 
 import {
   DEFAULT_PREFERENCES,
   ensurePermission,
+  getExactAlarmAccess,
   loadReminderPreferences,
+  requestExactAlarmAccess,
   requestReminderPermission,
   saveReminderPreferences,
+  sendTestReminder,
   type ReminderPermission,
   type ReminderPreferences,
 } from '@/features/reminders';
@@ -43,9 +46,12 @@ export default function RemindersScreen() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string>();
+  const [exactAccess, setExactAccess] = useState(true);
+  const [testMessage, setTestMessage] = useState<string>();
 
   const refreshPermission = useCallback(async () => {
     setPermission(await ensurePermission(false));
+    setExactAccess(await getExactAlarmAccess());
   }, []);
 
   useEffect(() => {
@@ -79,6 +85,19 @@ export default function RemindersScreen() {
     setPermission(await requestReminderPermission());
   };
 
+  const askExactAccess = async () => {
+    setExactAccess(await requestExactAlarmAccess());
+  };
+
+  const sendTest = async () => {
+    setTestMessage(undefined);
+    const result = await sendTestReminder();
+    setPermission(result);
+    setTestMessage(result === 'granted'
+      ? 'Notificação de teste enviada. Ela aparece em alguns segundos, mesmo com o app aberto.'
+      : 'Permita as notificações para receber o teste.');
+  };
+
   const disabled = !loaded || saving;
 
   return <ScrollView
@@ -108,6 +127,13 @@ export default function RemindersScreen() {
     <NomiText variant="body">{permissionLabels[permission]}</NomiText>
     {permission === 'undetermined' ? <NomiButton label="Permitir notificações" variant="secondary" onPress={() => void askPermission()} /> : null}
     {permission === 'denied' ? <NomiButton label="Abrir configurações" variant="secondary" onPress={() => void Linking.openSettings()} /> : null}
+
+    <NomiText variant="overline" tone="muted">Horário exato</NomiText>
+    <NomiText variant="body">{exactAccess ? 'Ativado — os avisos chegam no horário escolhido' : 'Desativado — o Android pode atrasar os avisos em até 1 hora'}</NomiText>
+    {!exactAccess ? <NomiButton label="Permitir horário exato" variant="secondary" onPress={() => void askExactAccess()} accessibilityHint="Abre a configuração Alarmes e lembretes do Android" /> : null}
+
+    <NomiButton label="Enviar notificação de teste" variant="tertiary" onPress={() => void sendTest()} />
+    {testMessage ? <NomiText variant="caption" tone="muted" accessibilityLiveRegion="polite">{testMessage}</NomiText> : null}
 
     <NomiText variant="overline" tone="muted">Antecedência padrão</NomiText>
     <View accessibilityRole="radiogroup" accessibilityLabel="Antecedência padrão" style={styles.options}>
