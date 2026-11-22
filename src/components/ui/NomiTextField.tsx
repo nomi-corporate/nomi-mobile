@@ -9,20 +9,24 @@ type Props = Omit<TextInputProps, 'style'> & {
   error?: string;
   containerStyle?: ViewStyle;
   inputStyle?: TextInputProps['style'];
+  /** Permanently read-only data (e.g. e-mail): full contrast, as in Figma, instead of the dimmed disabled look. */
+  readOnly?: boolean;
 };
 
-export function NomiTextField({ label, error, containerStyle, inputStyle, placeholder, ...inputProps }: Props) {
+export function NomiTextField({ label, error, containerStyle, inputStyle, placeholder, readOnly = false, ...inputProps }: Props) {
   const [focused, setFocused] = useState(false);
   const { colorScheme } = useNomiTheme();
   const colors = palettes[colorScheme];
-  const editable = inputProps.editable !== false;
+  const editable = !readOnly && inputProps.editable !== false;
   return (
     <View style={containerStyle}>
-      <View style={[styles.field, { backgroundColor: colors.surface, borderColor: error ? colors.error : focused ? colors.accent : colors.border, opacity: editable ? 1 : 0.64 }]}>
+      <View style={[styles.field, { backgroundColor: colors.surface, borderColor: error ? colors.error : focused ? colors.accent : colors.border, opacity: editable || readOnly ? 1 : 0.64 }]}>
         <NomiText variant="caption" tone="accent" style={styles.label}>{label.toLocaleUpperCase('pt-BR')}</NomiText>
         <TextInput
           {...inputProps}
+          editable={editable}
           accessibilityLabel={inputProps.accessibilityLabel ?? label}
+          accessibilityHint={error ?? inputProps.accessibilityHint}
           placeholder={placeholder}
           placeholderTextColor={colors.muted}
           onFocus={(event) => { setFocused(true); inputProps.onFocus?.(event); }}
@@ -30,7 +34,7 @@ export function NomiTextField({ label, error, containerStyle, inputStyle, placeh
           style={[styles.input, { color: colors.text }, inputStyle]}
         />
       </View>
-      {error ? <NomiText variant="caption" tone="error" style={styles.error}>{error}</NomiText> : null}
+      {error ? <NomiText variant="caption" tone="error" style={styles.error} accessibilityLiveRegion="polite">{error}</NomiText> : null}
     </View>
   );
 }
