@@ -12,6 +12,7 @@ import { useProfile } from '@/features/profile/ProfileProvider';
 import { AgendaDetail, AgendaEntry } from '@/features/agenda/AgendaEntry';
 import { formatDate, todayInZone } from '@/features/agenda/agendaDate';
 import { VoiceDraft } from '@/features/voice/VoiceDraft';
+import { reconcileReminders } from '@/features/reminders';
 
 export function TodayScreen() {
   const client = useAcademic();
@@ -43,7 +44,10 @@ export function TodayScreen() {
     setError(undefined);
     try {
       const value = await client.getHome(todayInZone(zone), zone);
-      if (current === generation.current) setSummary(value);
+      if (current === generation.current) {
+        setSummary(value);
+        void reconcileReminders([...value.items, ...value.upcoming, ...value.overdue]);
+      }
     } catch (cause) {
       if (current === generation.current) setError(cause instanceof Error ? cause.message : 'Não foi possível carregar o dia.');
     } finally { if (current === generation.current) setLoading(false); }

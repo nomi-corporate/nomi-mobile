@@ -28,6 +28,7 @@
           "enableBackgroundPlayback": false
         }
       ],
+      "expo-notifications",
       "expo-splash-screen",
       "expo-status-bar"
     ],
