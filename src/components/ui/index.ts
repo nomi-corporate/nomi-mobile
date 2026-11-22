@@ -3,6 +3,8 @@ export { NomiButton } from './NomiButton';
 export { NomiCard } from './NomiCard';
 export { NomiEmptyState } from './NomiEmptyState';
 export { NomiFeedback } from './NomiFeedback';
+export { NomiListRow } from './NomiListRow';
+export { NomiOptionCard } from './NomiOptionCard';
 export { NomiScreenHeader } from './NomiScreenHeader';
 export { NomiSubjectIcon } from './NomiSubjectIcon';
 export type { NomiSubject } from './NomiSubjectIcon';

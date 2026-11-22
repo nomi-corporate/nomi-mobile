@@ -1,11 +1,19 @@
-import { useRouter } from 'expo-router';
+import { useRouter, type Href } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { NomiTabIcon } from './NomiTabIcon';
 import { NomiText } from './NomiText';
 import { useNomiTheme } from '@/theme/NomiThemeProvider';
 import { palettes } from '@/theme/tokens';
 
-export function NomiScreenHeader({ title }: { title: string }) {
+type Props = {
+  title: string;
+  /** Accessible label of the back button. */
+  backLabel?: string;
+  /** Where to go when there is no history (deep link). */
+  fallbackHref?: Href;
+};
+
+export function NomiScreenHeader({ title, backLabel = 'Voltar ao menu', fallbackHref = '/menu' }: Props) {
   const router = useRouter();
   const { colorScheme } = useNomiTheme();
   const colors = palettes[colorScheme];
@@ -13,8 +21,8 @@ export function NomiScreenHeader({ title }: { title: string }) {
     <View style={styles.container}>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel="Voltar ao menu"
-        onPress={() => (router.canGoBack() ? router.back() : router.replace('/menu'))}
+        accessibilityLabel={backLabel}
+        onPress={() => (router.canGoBack() ? router.back() : router.replace(fallbackHref))}
         style={styles.back}
       >
         <NomiTabIcon name="back" color={colors.accent} />
