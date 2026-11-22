@@ -89,7 +89,7 @@ export function GroupsScreen() {
 
   return <ScrollView
     style={[styles.screen, { backgroundColor: colors.background }]}
-    contentContainerStyle={[styles.content, { paddingTop: Math.max(spacing.lg, insets.top + spacing.sm), paddingBottom: Math.max(spacing.xl * 3, insets.bottom + 80) }]}
+    contentContainerStyle={[styles.content, { paddingTop: Math.max(spacing.lg, insets.top + spacing.sm), paddingBottom: spacing.xl }]}
     keyboardShouldPersistTaps="handled"
     showsVerticalScrollIndicator={false}
   >

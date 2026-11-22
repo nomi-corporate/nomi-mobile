@@ -18,7 +18,7 @@ export default function MenuScreen() {
   const colors = palettes[colorScheme];
   const { profile } = useProfile();
   const router = useRouter();
-  return <ScrollView style={{ backgroundColor: colors.background }} contentContainerStyle={[styles.content, { paddingTop: Math.max(spacing.lg, insets.top + spacing.sm), paddingBottom: Math.max(112, insets.bottom + 80) }]}>
+  return <ScrollView style={{ backgroundColor: colors.background }} contentContainerStyle={[styles.content, { paddingTop: Math.max(spacing.lg, insets.top + spacing.sm), paddingBottom: spacing.xl }]}>
     <NomiText accessibilityRole="header" variant="display">Menu</NomiText>
 
     <Link href="/menu/profile" asChild>
@@ -74,7 +74,7 @@ function MenuLink({ title, detail, icon, href, disabled = false }: MenuLinkProps
 }
 
 const styles = StyleSheet.create({
-  content: { padding: spacing.lg, paddingBottom: 112, gap: spacing.md },
+  content: { padding: spacing.lg, paddingBottom: spacing.xl, gap: spacing.md },
   account: { minHeight: 88, padding: 12, flexDirection: 'row', alignItems: 'center', gap: spacing.md, borderWidth: 1 },
   accountCopy: { flex: 1, gap: spacing.xs },
   sectionTitle: { marginTop: spacing.sm, letterSpacing: 0.4 },

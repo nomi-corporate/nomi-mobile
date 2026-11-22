@@ -62,7 +62,7 @@ export function TodayScreen() {
   return (
     <ScrollView
       style={[styles.screen, { backgroundColor: colors.background }]}
-      contentContainerStyle={[styles.content, { paddingTop: Math.max(spacing.md, insets.top + spacing.sm), paddingBottom: Math.max(100, insets.bottom + 80) }]}
+      contentContainerStyle={[styles.content, { paddingTop: Math.max(spacing.md, insets.top + spacing.sm), paddingBottom: spacing.xl }]}
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.brandRow}>
