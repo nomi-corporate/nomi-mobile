@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useFocusEffect } from 'expo-router';
+import { useCallback, useRef, useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NomiAppIcon, NomiButton, NomiCard, NomiEmptyState, NomiLogo, NomiText } from '@/components';
@@ -11,12 +11,12 @@ import type { AgendaItem, HomeSummary } from '@/features/academic/infrastructure
 import { useProfile } from '@/features/profile/ProfileProvider';
 import { AgendaDetail, AgendaEntry } from '@/features/agenda/AgendaEntry';
 import { formatDate, todayInZone } from '@/features/agenda/agendaDate';
-import { VoiceDraft } from '@/features/voice/VoiceDraft';
 import { reconcileReminders } from '@/features/reminders';
 
 export function TodayScreen() {
   const client = useAcademic();
   const profile = useProfile();
+  const router = useRouter();
   const { colorScheme } = useNomiTheme();
   const insets = useSafeAreaInsets();
   const colors = palettes[colorScheme];
@@ -26,16 +26,9 @@ export function TodayScreen() {
   const [detail, setDetail] = useState<AgendaItem>();
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState<string>();
-  const [savedTitle, setSavedTitle] = useState<string>();
   const generation = useRef(0);
   const zone = profile.profile?.timeZone;
   const dateLabel = zone ? formatDate(summary?.date ?? todayInZone(zone), { weekday: 'long', day: 'numeric', month: 'long' }) : '';
-
-  useEffect(() => {
-    if (!savedTitle) return;
-    const timer = setTimeout(() => setSavedTitle(undefined), 6000);
-    return () => clearTimeout(timer);
-  }, [savedTitle]);
 
   const load = useCallback(async () => {
     if (!zone) return;
@@ -89,7 +82,7 @@ export function TodayScreen() {
       <NomiCard tone="tint" padding={19} style={styles.voiceCard}>
         <NomiText variant="heading" style={styles.voiceTitle}>Pode falar.</NomiText>
         <NomiText variant="supporting" tone="muted" style={styles.voiceDescription}>
-          Descreva um compromisso em até 60 segundos. A AWS transcreve sua fala.
+          Descreva um compromisso em até 60 segundos. Você revisa tudo antes de salvar.
         </NomiText>
         <NomiMascotAnimated
           pose="greeting"
@@ -97,10 +90,15 @@ export function TodayScreen() {
           accessibilityLabel="Nomi saudando"
           style={styles.mascot}
         />
-        <View style={styles.voiceButton}><VoiceDraft timeZone={zone} onCreated={(item) => { setSavedTitle(item.title); void load(); }} /></View>
+        <View style={styles.voiceButton}>
+          <NomiButton label="Falar com o Nomi" onPress={() => router.push('/capture/listen')} />
+          <NomiButton
+            label="Descrever por texto"
+            variant="secondary"
+            onPress={() => router.push({ pathname: '/capture/listen', params: { mode: 'text' } })}
+          />
+        </View>
       </NomiCard>
-
-      {savedTitle ? <NomiCard tone="success"><NomiText variant="supporting">{savedTitle} foi salvo na sua agenda.</NomiText></NomiCard> : null}
 
       <View style={styles.agendaSection}>
         <NomiText accessibilityRole="header" variant="title">Na sua agenda</NomiText>
@@ -143,6 +141,6 @@ const styles = StyleSheet.create({
   voiceTitle: { maxWidth: 176, fontSize: 28, lineHeight: 36 },
   voiceDescription: { maxWidth: 162, marginTop: 2 },
   mascot: { position: 'absolute', top: 34, right: 8 },
-  voiceButton: { position: 'absolute', left: 19, bottom: 17, right: 19 },
+  voiceButton: { position: 'absolute', left: 19, bottom: 17, right: 19, gap: 8 },
   agendaSection: { gap: 12, marginTop: 2 },
 });

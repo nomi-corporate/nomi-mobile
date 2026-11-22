@@ -29,6 +29,13 @@
         }
       ],
       "expo-notifications",
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "O Nomi usa o microfone para ouvir o compromisso que você descreve.",
+          "speechRecognitionPermission": "O Nomi transforma sua fala em texto para registrar compromissos."
+        }
+      ],
       "expo-splash-screen",
       "expo-status-bar"
     ],

@@ -10,14 +10,17 @@ export function normalizeAcademicApiUrl(value: string | undefined, development =
     throw new Error('Academic API não configurada.');
   }
 
-  const hasOnlyOrigin = url.pathname === '/' && !url.search && !url.hash && !url.username && !url.password;
+  // An origin, or an origin plus a single path prefix such as `https://host/academic`
+  // when the API sits behind the development reverse proxy.
+  const prefix = url.pathname.replace(/\/+$/, '');
+  const hasOnlyOrigin = /^(\/[a-z0-9-]+)?$/.test(prefix) && !url.search && !url.hash && !url.username && !url.password;
   const isSecure = url.protocol === 'https:';
   const isLocalDevelopment = development && url.protocol === 'http:' && localDevelopmentHosts.has(url.hostname);
   if (!hasOnlyOrigin || (!isSecure && !isLocalDevelopment)) {
     throw new Error('Academic API exige HTTPS; HTTP só é permitido para hosts locais em desenvolvimento.');
   }
 
-  return url.origin;
+  return url.origin + prefix;
 }
 
 function isDevelopmentRuntime(): boolean {
