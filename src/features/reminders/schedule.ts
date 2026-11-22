@@ -38,6 +38,30 @@ export function reminderTrigger(item: AgendaItem, prefs: ReminderPreferences, no
   return trigger;
 }
 
+/** A due moment closer than this gets no catch-up reminder (it would arrive with the commitment). */
+const MIN_CATCH_UP_MS = 3 * 60_000;
+
+export type ReminderPlan = { action: 'schedule'; at: Date } | { action: 'cancel' } | { action: 'keep' };
+
+/**
+ * What to do with a commitment's local notification.
+ * - `catchUp` (used right after the user saves): when the regular reminder time has already passed
+ *   but the commitment has not started yet, remind one minute from now instead of never.
+ * - Without `catchUp` (reconciliation on every Hoje/Agenda load) a past reminder time is left alone
+ *   ('keep'), so a catch-up reminder scheduled at save time is not cancelled or pushed again.
+ */
+export function reminderPlan(item: AgendaItem, prefs: ReminderPreferences, now: Date, options: { catchUp?: boolean } = {}): ReminderPlan {
+  if (!prefs.enabled || item.status !== 'pending') return { action: 'cancel' };
+  const trigger = reminderTrigger(item, prefs, now);
+  if (trigger) return { action: 'schedule', at: trigger };
+
+  const due = item.due.precision === 'dateTime'
+    ? resolveDueInstant(item)
+    : zonedToInstant(item.due.localDate, '23:59', item.due.timeZone)?.instant ?? null;
+  if (!due || due.getTime() - now.getTime() < MIN_CATCH_UP_MS) return { action: 'cancel' };
+  return options.catchUp ? { action: 'schedule', at: new Date(now.getTime() + MIN_LEAD_MS) } : { action: 'keep' };
+}
+
 function resolveDueInstant(item: AgendaItem): Date | null {
   if (item.due.instant) {
     const parsed = new Date(item.due.instant);

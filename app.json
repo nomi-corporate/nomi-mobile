@@ -13,7 +13,10 @@
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/app-icon/adaptive-icon.png",
         "backgroundColor": "#713BB3"
-      }
+      },
+      "permissions": [
+        "android.permission.SCHEDULE_EXACT_ALARM"
+      ]
     },
     "plugins": [
       "expo-router",

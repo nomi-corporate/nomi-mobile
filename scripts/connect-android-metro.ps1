@@ -12,7 +12,7 @@ if (-not (Test-Path -LiteralPath $adb)) { throw 'Android SDK/adb não encontrado
 $manifest = Invoke-RestMethod "http://127.0.0.1:$MetroPort/" -UseBasicParsing -Headers @{
     'Expo-Platform' = 'android'
     Accept = 'application/expo+json'
-} -TimeoutSec 10
+} -TimeoutSec 120
 $servedRoot = $manifest.extra.expoClient._internal.projectRoot
 if (-not $servedRoot -or [IO.Path]::GetFullPath($servedRoot).TrimEnd('\') -ne $sourceRoot) {
     throw "O Metro da porta $MetroPort não serve a cópia canônica '$sourceRoot'. Escolha outra porta com -MetroPort."
