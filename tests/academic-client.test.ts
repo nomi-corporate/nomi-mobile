@@ -148,6 +148,10 @@ test('Academic API requires HTTPS outside development', () => {
   assert.equal(normalizeAcademicApiUrl('http://10.0.2.2:5101', true), 'http://10.0.2.2:5101');
   assert.throws(() => normalizeAcademicApiUrl('http://academic.example.test', true));
   assert.throws(() => normalizeAcademicApiUrl('http://10.0.2.2:5101', false));
+  assert.equal(normalizeAcademicApiUrl('https://host.example.test/academic', false), 'https://host.example.test/academic');
+  assert.equal(normalizeAcademicApiUrl('https://host.example.test/academic/', false), 'https://host.example.test/academic');
+  assert.throws(() => normalizeAcademicApiUrl('https://host.example.test/a/b', false));
+  assert.throws(() => normalizeAcademicApiUrl('https://host.example.test/academic?x=1', false));
 });
 
 test('Academic client updates a subject with the version precondition', async () => {
