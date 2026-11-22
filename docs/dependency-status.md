@@ -5,3 +5,5 @@ Expo SDK 58 foi gerado pelo template oficial e as dependências compatíveis for
 Na instalação em 04/11/2026, `npm audit` reportou 5 entradas moderadas na cadeia de ferramentas Expo (glob/minimatch e dependentes). A sugestão automática envolve trocar a versão principal do Expo. Não foi aplicada uma troca incompatível nem um override de major transitivo sem validação.
 
 Revisar atualizações oficiais e acompanhar GHSA-3g3m-2fjr-6pw4 e GHSA-g3hv-75wg-m249 antes de distribuir uma versão de produção. As validações de tipos e bundles não substituem a revisão dessas dependências.
+
+Verificação adicional em 20/11/2026 com `npm audit --omit=dev --audit-level=moderate` encontrou 4 avisos moderados relacionados a `glob`/`minimatch` na cadeia Expo. O npm indica `npm audit fix`, sem uma troca de dependências aplicada nesta revisão. Reavaliar em atualização planejada do Expo e antes de release; não executar correção automática de major sem validar compatibilidade.
