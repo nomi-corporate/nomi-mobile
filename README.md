@@ -34,6 +34,8 @@ npm run android:local
 
 Ele configura o JDK do Android Studio, valida o SDK/ADB, sincroniza o código para `C:\n` (somente para compilação), gera `C:\n\android\app\build\outputs\apk\debug\app-debug.apk` e instala/abre automaticamente quando há um emulador online. O código editável continua em `C:\Users\Willian\Desktop\Nomi\nomi-mobile`.
 
+Com um celular conectado por USB (depuração USB ativada), o script detecta a arquitetura do aparelho (`arm64-v8a` na maioria dos celulares) e compila para ela; sem aparelho ou no emulador, usa `x86_64`. Para forçar, use `-Architecture arm64-v8a`. Depois de mudar `app.json` (ícone, permissões ou plugins), rode `npx expo prebuild --platform android --no-install` antes do `-Rebuild`, porque a pasta `android/` é gerada.
+
 O comando reutiliza o APK existente e inicia o Metro na pasta original do código, com `adb reverse` na porta 8081. Alterações de telas/TypeScript aparecem pelo Metro. Após alterações nativas, use `npm run android:local -- -Rebuild` para recompilar. O espelho curto é usado somente pelo Gradle: executar o Metro nele pode duplicar a inicialização do React Native.
 
 Se já houver um Metro canônico em outra porta, use `npm run android:local -- -MetroPort 8083`. Para reconectar o APK instalado sem recompilar ou reinstalar, execute `./scripts/connect-android-metro.ps1 -MetroPort 8083`. O helper confere a raiz servida no manifesto Expo e as URLs públicas de Identity/Academic incorporadas no bundle, comparando com a configuração local atual. Em seguida, alinha o host Android salvo com o redirecionamento ADB. Ele preserva a sessão e recusa um Metro de outra cópia ou com ambiente desatualizado; informe `-Serial` se houver vários dispositivos.

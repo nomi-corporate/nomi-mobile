@@ -7,13 +7,19 @@
     "orientation": "portrait",
     "newArchEnabled": true,
     "userInterfaceStyle": "automatic",
+    "icon": "./src/assets/app-icon/icon.png",
     "android": {
-      "package": "com.nomi.app"
+      "package": "com.nomi.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./src/assets/app-icon/adaptive-icon.png",
+        "backgroundColor": "#713BB3"
+      }
     },
     "plugins": [
       "expo-router",
       "expo-secure-store",
       "./plugins/withRiveNitroPackages",
+      "./plugins/withWindowsShortBuildPaths",
       [
         "expo-audio",
         {
