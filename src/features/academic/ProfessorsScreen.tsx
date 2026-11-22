@@ -236,6 +236,8 @@ export function ProfessorsScreen() {
       </NomiText>
     </View>
 
+    <NomiButton label="Cadastrar com as matérias por voz" variant="secondary" accessibilityHint="Abre o cadastro do semestre por voz ou texto." onPress={() => router.push('/semester/permissions')} />
+
     <View accessibilityRole="radiogroup" accessibilityLabel="Lista de professores" style={styles.filterRow}>
       {[false, true].map((archived) => {
         const selectedFilter = archivedView === archived;

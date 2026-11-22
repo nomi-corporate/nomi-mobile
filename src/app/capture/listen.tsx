@@ -3,7 +3,7 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NomiButton, NomiCard, NomiFeedback, NomiText, NomiTextField } from '@/components';
-import { NomiMascot } from '@/components/brand/NomiMascot';
+import { NomiMascotAnimated } from '@/components/brand/NomiMascotAnimated';
 import { NomiTabIcon } from '@/components/ui/NomiTabIcon';
 import { useCapture } from '@/features/capture/CaptureProvider';
 import { SPEECH_MAX_SECONDS, SPEECH_NOTICE, useSpeechCapture } from '@/features/capture/useSpeechCapture';
@@ -36,7 +36,9 @@ export default function CaptureScreen() {
   const mode: CaptureMode = requestedMode === 'text' ? 'text' : 'voice';
 
   const { text, setText, interpret, reset, startManualDraft } = useCapture();
-  const speech = useSpeechCapture();
+  // When the user stops talking, review automatically (same as tapping "Revisar gravação").
+  const autoReviewRef = useRef<(() => void) | null>(null);
+  const speech = useSpeechCapture({ onSilence: () => autoReviewRef.current?.() });
   const [busy, setBusy] = useState(false);
   const [unsupportedMessage, setUnsupportedMessage] = useState<string | null>(null);
   const [interpretError, setInterpretError] = useState<string | null>(null);
@@ -116,6 +118,8 @@ export default function CaptureScreen() {
     }
   };
 
+  autoReviewRef.current = () => { void interpretText(); };
+
   const tryAnotherPhrase = () => {
     setUnsupportedMessage(null);
     setInterpretError(null);
@@ -173,7 +177,7 @@ export default function CaptureScreen() {
 
         <View style={styles.mascotWrap}>
           <View style={[styles.halo, { backgroundColor: halo }]} />
-          <NomiMascot
+          <NomiMascotAnimated
             pose={isVoice ? 'listening' : 'attentive'}
             size={235}
             accessibilityLabel={isVoice ? 'Nomi ouvindo' : 'Nomi atento'}

@@ -197,6 +197,7 @@ export default function SubjectsScreen() {
   >
     <NomiScreenHeader title="Matérias" />
     <NomiText variant="supporting" tone="muted" style={styles.description}>Cadastre e acompanhe as disciplinas do seu semestre.</NomiText>
+    <NomiButton label="Cadastrar matérias por voz" accessibilityHint="Abre o cadastro do semestre por voz ou texto." onPress={() => router.push('/semester/permissions')} />
     <NomiButton label="Gerenciar professores" variant="secondary" onPress={() => router.push('/menu/professors')} />
 
     <View accessibilityRole="radiogroup" accessibilityLabel="Lista de matérias" style={styles.searchRow}>
