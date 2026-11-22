@@ -27,3 +27,8 @@ expo-env.d.ts
 android/
 ios/
 web-build/
+
+# QA exports and local debug screenshots
+artifacts/
+/*.png
+/.nomi-redirect-state.png

@@ -1,0 +1,17 @@
+{
+  "build": {
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_ACADEMIC_API_URL": "https://nomi-dev-equipe.duckdns.org/academic",
+        "EXPO_PUBLIC_ASSISTANT_API_URL": "http://10.0.2.2:5102",
+        "EXPO_PUBLIC_NOTIFICATIONS_API_URL": "http://10.0.2.2:5103",
+        "EXPO_PUBLIC_IDENTITY_API_URL": "https://nomi-dev-equipe.duckdns.org",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "29417059442-38l3iftilccgbkq0qjal7usb76rdfagm.apps.googleusercontent.com"
+      }
+    }
+  }
+}
