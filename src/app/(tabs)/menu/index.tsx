@@ -46,7 +46,7 @@ export default function MenuScreen() {
     <NomiText variant="overline" tone="muted" style={styles.sectionTitle}>Preferências</NomiText>
     <View style={styles.rows}>
       <NomiListRow title="Aparência" detail="Claro, escuro ou sistema" onPress={() => router.push('/menu/appearance')} />
-      <NomiListRow title="Lembretes" detail="Notificações e antecedência · em implementação" chevron={false} disabled />
+      <NomiListRow title="Lembretes" detail="Notificações e antecedência" onPress={() => router.push('/menu/reminders')} />
       <NomiListRow title="Privacidade" detail="Seus dados e permissões" onPress={() => router.push('/menu/privacy')} />
     </View>
   </ScrollView>;

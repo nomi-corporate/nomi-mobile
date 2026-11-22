@@ -10,6 +10,7 @@ import type { AgendaItem } from '@/features/academic/infrastructure/AcademicClie
 import { useProfile } from '@/features/profile/ProfileProvider';
 import { AgendaDetail, AgendaEntry } from './AgendaEntry';
 import { formatDate, shiftDate, todayInZone, weekDates } from './agendaDate';
+import { reconcileReminders } from '@/features/reminders';
 
 type Props = {
   onOpenSubjects: () => void;
@@ -44,7 +45,7 @@ export function AgendaScreen({ onOpenSubjects }: Props) {
     setDetail(undefined);
     try {
       const page = await client.getAgenda(selectedDate, shiftDate(selectedDate, 1), zone);
-      if (current === generation.current) { setItems(page.items); setCursor(page.nextCursor); }
+      if (current === generation.current) { setItems(page.items); setCursor(page.nextCursor); void reconcileReminders(page.items); }
     } catch (cause) {
       if (current === generation.current) setError(cause instanceof Error ? cause.message : 'Não foi possível carregar a agenda.');
     } finally { if (current === generation.current) setLoading(false); }
@@ -67,6 +68,7 @@ export function AgendaScreen({ onOpenSubjects }: Props) {
       if (page.nextCursor === requested) throw new Error('A agenda retornou uma página repetida. Atualize e tente novamente.');
       setItems((previous) => [...previous, ...page.items]);
       setCursor(page.nextCursor);
+      void reconcileReminders(page.items);
     } catch (cause) {
       if (current === generation.current) setError(cause instanceof Error ? cause.message : 'Não foi possível carregar mais itens.');
     } finally { if (current === generation.current) setLoadingMore(false); }

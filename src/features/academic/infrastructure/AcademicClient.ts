@@ -63,7 +63,9 @@ export type CreateCommitmentInput = {
   description: string | null;
   kind: 'exam' | 'assignment' | 'reminder';
   subjectId: string | null;
-  due: { precision: 'date'; localDate: string; timeZone: string };
+  due:
+    | { precision: 'date'; localDate: string; timeZone: string }
+    | { precision: 'dateTime'; localDate: string; localTime: string; offset: string; timeZone: string };
 };
 export type AgendaPage = {
   items: AgendaItem[];
@@ -166,7 +168,7 @@ export class AcademicClient {
       body: JSON.stringify(input),
     });
     if (!value || typeof value.id !== 'string' || typeof value.title !== 'string' || value.status !== 'pending'
-      || value.due?.precision !== 'date' || !Number.isInteger(value.version))
+      || (value.due?.precision !== 'date' && value.due?.precision !== 'dateTime') || !Number.isInteger(value.version))
       throw new AcademicApiError(502, 'O serviço acadêmico não confirmou o compromisso. Tente novamente.');
     return value;
   }
