@@ -191,7 +191,7 @@ export default function SubjectsScreen() {
 
   return <ScrollView
     style={{ backgroundColor: colors.background }}
-    contentContainerStyle={[styles.content, { paddingTop: Math.max(spacing.lg, insets.top + spacing.sm), paddingBottom: Math.max(112, insets.bottom + 80) }]}
+    contentContainerStyle={[styles.content, { paddingTop: Math.max(spacing.lg, insets.top + spacing.sm), paddingBottom: spacing.xl }]}
     refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setSelectedId(null); void load(true); }} tintColor={colors.accent} />}
     keyboardShouldPersistTaps="handled"
   >

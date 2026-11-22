@@ -85,7 +85,7 @@ export function AgendaScreen({ onOpenSubjects }: Props) {
   return (
     <ScrollView
       style={{ backgroundColor: colors.background }}
-      contentContainerStyle={[styles.content, { paddingTop: Math.max(spacing.lg, insets.top + spacing.sm), paddingBottom: Math.max(104, insets.bottom + 80) }]}
+      contentContainerStyle={[styles.content, { paddingTop: Math.max(spacing.lg, insets.top + spacing.sm), paddingBottom: spacing.xl }]}
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.heading}>
