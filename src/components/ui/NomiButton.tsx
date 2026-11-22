@@ -38,7 +38,7 @@ export function NomiButton({ label, variant = 'primary', loading = false, disabl
       {loading ? (
         <ActivityIndicator color={foregroundColor} />
       ) : (
-        <NomiText variant="label" style={{ color: foregroundColor }}>{label}</NomiText>
+        <NomiText variant="label" style={{ color: foregroundColor, textAlign: 'center' }}>{label}</NomiText>
       )}
     </Pressable>
   );

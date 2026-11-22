@@ -7,6 +7,7 @@ import {
   type ExpoSpeechRecognitionOptions,
   type ExpoSpeechRecognitionResultEvent,
 } from 'expo-speech-recognition';
+import { SPEECH_SILENCE_MS, shouldEndOnSilence } from './speechRules';
 
 /**
  * On-device (or platform) speech recognition for the capture flow (Figma 04.01 "Escutando").
@@ -44,6 +45,15 @@ const VOLUME_MIN = -2;
 const VOLUME_MAX = 10;
 /** How long stop() waits for the recognizer's last result before resolving with what it has. */
 const STOP_WAIT_MS = 1500;
+const SILENCE_TICK_MS = 250;
+/** Normalized input level considered as someone speaking. */
+const SPEAKING_VOLUME = 0.35;
+
+export type SpeechCaptureOptions = {
+  /** Called once when the user stops talking (silence after speech); the capture is already stopped. */
+  onSilence?: (transcript: string) => void;
+  silenceMs?: number;
+};
 
 /** Maps the native volume range (about -2..10) to 0..1. */
 export function normalizeVolume(value: number): number {
@@ -75,7 +85,7 @@ export function speechErrorOutcome(code: ExpoSpeechRecognitionErrorCode): ErrorO
   }
 }
 
-export function useSpeechCapture(): SpeechCapture {
+export function useSpeechCapture(options: SpeechCaptureOptions = {}): SpeechCapture {
   const [state, setStateValue] = useState<SpeechCaptureState>('idle');
   const [transcript, setTranscript] = useState('');
   const [volume, setVolume] = useState(0);
@@ -90,6 +100,10 @@ export function useSpeechCapture(): SpeechCapture {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const waitersRef = useRef<Array<() => void>>([]);
   const stopRef = useRef<() => Promise<string>>(async () => '');
+  const lastSpeechAtRef = useRef(0);
+  const onSilenceRef = useRef(options.onSilence);
+  onSilenceRef.current = options.onSilence;
+  const silenceMs = options.silenceMs ?? SPEECH_SILENCE_MS;
 
   const update = useCallback((next: SpeechCaptureState) => {
     stateRef.current = next;
@@ -121,12 +135,18 @@ export function useSpeechCapture(): SpeechCapture {
     endTimer();
     startedAtRef.current = Date.now();
     setElapsedSeconds(0);
+    lastSpeechAtRef.current = 0;
     timerRef.current = setInterval(() => {
-      const elapsed = Math.min(SPEECH_MAX_SECONDS, Math.floor((Date.now() - startedAtRef.current) / 1000));
+      const now = Date.now();
+      const elapsed = Math.min(SPEECH_MAX_SECONDS, Math.floor((now - startedAtRef.current) / 1000));
       setElapsedSeconds(elapsed);
-      if (elapsed >= SPEECH_MAX_SECONDS) void stopRef.current();
-    }, 1000);
-  }, [endTimer]);
+      if (elapsed >= SPEECH_MAX_SECONDS) { void stopRef.current(); return; }
+      if (shouldEndOnSilence(currentText().length > 0, lastSpeechAtRef.current, now, silenceMs)) {
+        lastSpeechAtRef.current = 0;
+        void stopRef.current().then((text) => { if (text) onSilenceRef.current?.(text); });
+      }
+    }, SILENCE_TICK_MS);
+  }, [currentText, endTimer, silenceMs]);
 
   useSpeechRecognitionEvent('start', () => {
     if (cancelledRef.current) return;
@@ -137,6 +157,7 @@ export function useSpeechCapture(): SpeechCapture {
   useSpeechRecognitionEvent('result', (event: ExpoSpeechRecognitionResultEvent) => {
     if (cancelledRef.current) return;
     const text = event.results[0]?.transcript ?? '';
+    if (text.trim()) lastSpeechAtRef.current = Date.now();
     if (event.isFinal) {
       committedRef.current = joinTranscript(committedRef.current, text);
       interimRef.current = '';
@@ -148,7 +169,11 @@ export function useSpeechCapture(): SpeechCapture {
 
   useSpeechRecognitionEvent('volumechange', (event) => {
     if (cancelledRef.current) return;
-    setVolume(normalizeVolume(event.value));
+    const level = normalizeVolume(event.value);
+    // Loud input only counts as speech once something was recognized, so background noise
+    // before the first word does not keep an empty capture open forever.
+    if (level >= SPEAKING_VOLUME && currentText()) lastSpeechAtRef.current = Date.now();
+    setVolume(level);
   });
 
   useSpeechRecognitionEvent('error', (event: ExpoSpeechRecognitionErrorEvent) => {

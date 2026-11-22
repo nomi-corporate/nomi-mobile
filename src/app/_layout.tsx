@@ -67,7 +67,7 @@ function AuthNavigator() {
   return <>
     <StatusBar style={dark ? 'light' : 'dark'} />
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Protected guard={signedIn}><Stack.Screen name="(tabs)" /><Stack.Screen name="capture" /></Stack.Protected>
+      <Stack.Protected guard={signedIn}><Stack.Screen name="(tabs)" /><Stack.Screen name="capture" /><Stack.Screen name="semester" /></Stack.Protected>
       <Stack.Protected guard={!signedIn}><Stack.Screen name="sign-in" /></Stack.Protected>
       {__DEV__ ? <Stack.Screen name="dev/components" /> : null}
     </Stack>
