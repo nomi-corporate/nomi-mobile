@@ -40,6 +40,19 @@ if (-not $Architecture) {
 }
 Write-Host "Arquitetura do APK: $Architecture" -ForegroundColor Cyan
 
+# 10.0.2.2 is the host machine only inside the Android emulator; a phone cannot reach it.
+if ($Architecture -ne "x86_64") {
+    foreach ($envFile in @(".env", ".env.development", ".env.local", ".env.development.local")) {
+        $envPath = Join-Path $sourceRoot $envFile
+        if (-not (Test-Path -LiteralPath $envPath)) { continue }
+        foreach ($line in Get-Content -LiteralPath $envPath) {
+            if ($line -match '^\s*(EXPO_PUBLIC_(?:IDENTITY|ACADEMIC|ASSISTANT)_API_URL)\s*=.*10\.0\.2\.2') {
+                Write-Warning "$envFile define $($Matches[1]) com 10.0.2.2, endereço que só existe no emulador. No celular, use https://nomi-dev-equipe.duckdns.org (ou o IP do computador na rede) e reinicie o Metro."
+            }
+        }
+    }
+}
+
 # O CMake/Ninja do Android ainda usa caminhos legados de até 260 caracteres.
 # Mantemos um espelho curto só para o build; o código editável continua no Desktop.
 New-Item -ItemType Directory -Force -Path $mirrorRoot | Out-Null
@@ -64,8 +77,27 @@ $required = @(
     "react-native-worklets",
     "@rive-app\react-native",
     "react-native-nitro-modules",
-    "expo-audio"
+    "expo-audio",
+    "expo-notifications"
 )
+
+# Link every top-level package (and scoped package) the mirror is missing, so a
+# dependency installed after the mirror was created never breaks the native build.
+$sourceModules = Join-Path $sourceRoot "node_modules"
+$mirrorModules = Join-Path $mirrorRoot "node_modules"
+New-Item -ItemType Directory -Force -Path $mirrorModules | Out-Null
+foreach ($entry in Get-ChildItem -LiteralPath $sourceModules -Directory -Force) {
+    $packages = if ($entry.Name.StartsWith("@")) { @(Get-ChildItem -LiteralPath $entry.FullName -Directory -Force) } else { @($entry) }
+    foreach ($package in $packages) {
+        $relative = $package.FullName.Substring($sourceModules.Length + 1)
+        $mirrorPackage = Join-Path $mirrorModules $relative
+        if (-not (Test-Path -LiteralPath $mirrorPackage)) {
+            New-Item -ItemType Directory -Force -Path (Split-Path $mirrorPackage -Parent) | Out-Null
+            New-Item -ItemType Junction -Path $mirrorPackage -Target $package.FullName | Out-Null
+        }
+    }
+}
+
 foreach ($name in $required) {
     $mirrorPackage = Join-Path $mirrorRoot "node_modules\$name"
     $sourcePackage = Join-Path $sourceRoot "node_modules\$name"
@@ -166,7 +198,7 @@ try {
         & .\android\gradlew.bat -p .\android :app:compileDebugKotlin --rerun-tasks --no-build-cache --max-workers=2 --console=plain
         if ($LASTEXITCODE -ne 0) { throw "Compilação Kotlin do app falhou." }
 
-        & .\android\gradlew.bat -p .\android :app:assembleDebug -x lint -x test --configure-on-demand --build-cache --max-workers=2 -PreactNativeDevServerPort=8081 -PreactNativeArchitectures=$Architecture --console=plain
+        & .\android\gradlew.bat -p .\android :app:assembleDebug -x lint -x test --configure-on-demand --build-cache --max-workers=2 -PreactNativeDevServerPort=8081 "-PreactNativeArchitectures=$Architecture" --console=plain
         if ($LASTEXITCODE -ne 0) { throw "Build Android local falhou." }
         if (-not (Test-Path -LiteralPath $apk)) { throw "Gradle terminou sem gerar o APK no caminho esperado '$apk'." }
         Set-Content -LiteralPath $fingerprintFile -Value $nativeFingerprint -NoNewline

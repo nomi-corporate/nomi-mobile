@@ -9,7 +9,7 @@ $adb = Join-Path $env:LOCALAPPDATA 'Android\Sdk\platform-tools\adb.exe'
 if (-not (Test-Path -LiteralPath $adb)) { throw 'Android SDK/adb não encontrado.' }
 
 # A porta aberta não comprova qual cópia do projeto o Metro está servindo.
-$manifest = Invoke-RestMethod "http://127.0.0.1:$MetroPort/" -Headers @{
+$manifest = Invoke-RestMethod "http://127.0.0.1:$MetroPort/" -UseBasicParsing -Headers @{
     'Expo-Platform' = 'android'
     Accept = 'application/expo+json'
 } -TimeoutSec 10
@@ -39,7 +39,8 @@ foreach ($key in $publicKeys) {
 }
 $launchUri = [Uri]$manifest.launchAsset.url
 $bundleUri = "http://127.0.0.1:$MetroPort$($launchUri.AbsolutePath)?platform=android&dev=true&minify=false&transform.bytecode=0"
-$bundleResponse = Invoke-WebRequest $bundleUri -TimeoutSec 60
+# -UseBasicParsing avoids the Internet Explorer engine, which fails on Windows PowerShell 5.1.
+$bundleResponse = Invoke-WebRequest $bundleUri -UseBasicParsing -TimeoutSec 300
 $bundle = if ($bundleResponse.Content -is [byte[]]) { [Text.Encoding]::UTF8.GetString($bundleResponse.Content) } else { $bundleResponse.Content }
 foreach ($key in $publicKeys) {
     $pattern = '"' + $key + '"\s*:\s*\{\s*enumerable:\s*true,\s*value:\s*"([^"]+)"'
