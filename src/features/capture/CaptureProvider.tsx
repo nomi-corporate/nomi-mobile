@@ -4,7 +4,7 @@ import { useAcademic } from '@/features/academic/AcademicProvider';
 import { createIdempotencyKey, type AgendaItem, type CreateCommitmentInput } from '@/features/academic/infrastructure/AcademicClient';
 import { zonedToInstant } from '@/features/agenda/zonedTime';
 import { useProfile } from '@/features/profile/ProfileProvider';
-import { reminderTrigger, type ReminderPreferences } from '@/features/reminders/schedule';
+import { reminderPlan, type ReminderPreferences } from '@/features/reminders/schedule';
 import { loadReminderPreferences, syncCommitmentReminder } from '@/features/reminders';
 import { AssistantProposalClient, AssistantUnavailableError, type CommitmentProposal } from '@/features/voice/AssistantProposalClient';
 import type { ProposalKind, ProposalQuestion } from '@/features/voice/proposalParsing';
@@ -175,7 +175,8 @@ export function CaptureProvider({ children }: { children: ReactNode }) {
       }, saveKey.current);
       setSaved(item);
       const prefs: ReminderPreferences = await loadReminderPreferences();
-      setSavedReminderAt(reminderTrigger(item, prefs, new Date()));
+      const plan = reminderPlan(item, prefs, new Date(), { catchUp: true });
+      setSavedReminderAt(plan.action === 'schedule' ? plan.at : null);
       void syncCommitmentReminder(item);
       return item;
     } catch (cause) {

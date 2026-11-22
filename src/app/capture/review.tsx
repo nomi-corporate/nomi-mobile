@@ -12,7 +12,7 @@ import { commitmentDetail, eyebrowFor, reminderLabel } from '@/features/capture/
 import { resolveCommitmentNames, useCaptureCatalog } from '@/features/capture/useCaptureCatalog';
 import { zonedToInstant } from '@/features/agenda/zonedTime';
 import { loadReminderPreferences } from '@/features/reminders';
-import { reminderTrigger, type ReminderPreferences } from '@/features/reminders/schedule';
+import { reminderPlan, type ReminderPreferences } from '@/features/reminders/schedule';
 
 /** Builds an unsaved AgendaItem from the draft so the reminder rules can preview the trigger. */
 function previewReminder(draft: CaptureDraft, timeZone: string, prefs: ReminderPreferences, now: Date): Date | null {
@@ -29,7 +29,9 @@ function previewReminder(draft: CaptureDraft, timeZone: string, prefs: ReminderP
     id: 'preview', itemType: 'commitment', title: draft.title, description: null, kind: draft.kind,
     subjectId: draft.subjectId, subjectName: null, status: 'pending', displayDate: '', displayTime: null, due, version: 0,
   };
-  return reminderTrigger(item, prefs, now);
+  // Same rule used when saving: a commitment closer than the lead time still gets a reminder.
+  const plan = reminderPlan(item, prefs, now, { catchUp: true });
+  return plan.action === 'schedule' ? plan.at : null;
 }
 
 /** Figma 04.03 "Revisar compromisso": confirm date, reminder and visibility before saving. */
