@@ -445,7 +445,26 @@ def generate_pose(pose, motion_by_id, ids):
                 key = add_tag(prop, "KeyFrameDouble", value=f(value), frame=str(frame_index), interpolationType=interpolation, interpolatorId=interp_id)
                 if curve and index < len(keyframes) - 1:
                     add_tag(key, "CubicEaseInterpolator", id=interp_id, x1=f(float(curve["x1"])), y1=f(float(curve["y1"])), x2=f(float(curve["x2"])), y2=f(float(curve["y2"])))
+    # The Figma timeline is 3.2 s, but each pose settles earlier and holds the final value until the
+    # end. Looping the full 192 frames freezes the mascot for up to 0.75 s every cycle. Every pose ends
+    # where it starts, so ending the loop at the last frame that changes a value keeps it seamless.
+    animation.set("duration", str(last_moving_frame(properties_of(by_target)) or 192))
     return artboard, len(vector_elements), len(pose_motion_nodes)
+
+
+def properties_of(by_target):
+    return [prop for _, properties in by_target.values() for prop in properties]
+
+
+def last_moving_frame(properties, tolerance=1e-4):
+    """Last frame at which any keyed value changes, or None when nothing moves."""
+    last = None
+    for _, keyframes, values in properties:
+        frames = [round(float(kf["timelinePosition"]) * 60) for kf in keyframes]
+        for (frame_a, value_a), (frame_b, value_b) in zip(zip(frames, values), list(zip(frames, values))[1:]):
+            if abs(value_a - value_b) > tolerance:
+                last = frame_b if last is None else max(last, frame_b)
+    return last
 
 
 def main():
