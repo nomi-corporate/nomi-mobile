@@ -2,7 +2,10 @@ param(
     [string]$Device = "Nomi_API_36",
     [ValidateRange(1024, 65535)][int]$MetroPort = 8081,
     [switch]$SkipBuild,
-    [switch]$Rebuild
+    [switch]$Rebuild,
+    # Arquitetura nativa do APK. Vazio = detectar pelo aparelho conectado
+    # (arm64-v8a em celulares; x86_64 no emulador ou sem aparelho).
+    [ValidateSet("", "x86_64", "arm64-v8a", "armeabi-v7a")][string]$Architecture = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -22,6 +25,20 @@ $env:JAVA_HOME = $javaRoot
 $env:ANDROID_HOME = $sdkRoot
 $env:ANDROID_SDK_ROOT = $sdkRoot
 $env:Path = "$javaRoot\bin;$sdkRoot\platform-tools;$sdkRoot\emulator;$env:Path"
+
+if (-not $Architecture) {
+    $onlineSerials = @(& (Join-Path $sdkRoot "platform-tools\adb.exe") devices | Select-String "^(\S+)\s+device$" | ForEach-Object { $_.Matches[0].Groups[1].Value })
+    if ($onlineSerials.Count -gt 1) {
+        throw "Há mais de um aparelho conectado. Desconecte um ou informe -Architecture."
+    }
+    $Architecture = if ($onlineSerials.Count -eq 1) {
+        (& (Join-Path $sdkRoot "platform-tools\adb.exe") -s $onlineSerials[0] shell getprop ro.product.cpu.abi).Trim()
+    } else { "x86_64" }
+    if ($Architecture -notin @("x86_64", "arm64-v8a", "armeabi-v7a")) {
+        throw "Arquitetura '$Architecture' não suportada. Informe -Architecture."
+    }
+}
+Write-Host "Arquitetura do APK: $Architecture" -ForegroundColor Cyan
 
 # O CMake/Ninja do Android ainda usa caminhos legados de até 260 caracteres.
 # Mantemos um espelho curto só para o build; o código editável continua no Desktop.
@@ -46,7 +63,8 @@ $required = @(
     "react-native-safe-area-context",
     "react-native-worklets",
     "@rive-app\react-native",
-    "react-native-nitro-modules"
+    "react-native-nitro-modules",
+    "expo-audio"
 )
 foreach ($name in $required) {
     $mirrorPackage = Join-Path $mirrorRoot "node_modules\$name"
@@ -73,7 +91,9 @@ try {
         "android\gradle.properties",
         "android\app\build.gradle",
         "android\app\src\main\java\com\nomi\app\MainApplication.kt",
-        "plugins\withRiveNitroPackages.js"
+        "plugins\withRiveNitroPackages.js",
+        "plugins\withWindowsShortBuildPaths.js",
+        "android\app\src\main\AndroidManifest.xml"
     )
     $fingerprintParts = foreach ($relativePath in $nativeInputs) {
         $fullPath = Join-Path $sourceRoot $relativePath
@@ -87,7 +107,7 @@ try {
             "$relativePath=$hash"
         }
     }
-    $nativeFingerprint = $fingerprintParts -join "`n"
+    $nativeFingerprint = (@("architecture=$Architecture") + $fingerprintParts) -join "`n"
     $previousFingerprint = if (Test-Path -LiteralPath $fingerprintFile) { Get-Content -LiteralPath $fingerprintFile -Raw } else { "" }
     $needsNativeBuild = $Rebuild -or -not (Test-Path -LiteralPath $apk) -or $previousFingerprint -ne $nativeFingerprint
 
@@ -146,7 +166,7 @@ try {
         & .\android\gradlew.bat -p .\android :app:compileDebugKotlin --rerun-tasks --no-build-cache --max-workers=2 --console=plain
         if ($LASTEXITCODE -ne 0) { throw "Compilação Kotlin do app falhou." }
 
-        & .\android\gradlew.bat -p .\android :app:assembleDebug -x lint -x test --configure-on-demand --build-cache --max-workers=2 -PreactNativeDevServerPort=8081 -PreactNativeArchitectures=x86_64 --console=plain
+        & .\android\gradlew.bat -p .\android :app:assembleDebug -x lint -x test --configure-on-demand --build-cache --max-workers=2 -PreactNativeDevServerPort=8081 -PreactNativeArchitectures=$Architecture --console=plain
         if ($LASTEXITCODE -ne 0) { throw "Build Android local falhou." }
         if (-not (Test-Path -LiteralPath $apk)) { throw "Gradle terminou sem gerar o APK no caminho esperado '$apk'." }
         Set-Content -LiteralPath $fingerprintFile -Value $nativeFingerprint -NoNewline
@@ -179,7 +199,7 @@ try {
         & $adb install -r $apk
         if ($LASTEXITCODE -eq 0) {
             & (Join-Path $sourceRoot 'scripts\connect-android-metro.ps1') -MetroPort $MetroPort
-            Write-Host "Aplicativo instalado e aberto no emulador." -ForegroundColor Green
+            Write-Host "Aplicativo instalado e aberto no aparelho." -ForegroundColor Green
         } else {
             Write-Warning "O APK foi gerado, mas a instalação falhou. Se for conflito de assinatura, remova com: adb uninstall com.nomi.app"
         }
